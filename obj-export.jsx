@@ -1,6 +1,5 @@
 {
 
-
 // Copyright (c)  2012 
 // Fabian "fabiantheblind" Morón Zirfas  
 // Permission is hereby granted, free of charge, to any 
@@ -23,6 +22,21 @@
 
 // see also http://www.opensource.org/licenses/mit-license.php
 
+/**
+ * First of all.
+ * Satya G Meka aka Rowbyte is the only one out of
+ * Element 3D, Form and Plexus
+ * who seems to get the obj import right
+ * I didn't try the atomkraft plugins but
+ * Element 3D and Form fail with the OBJ files created
+ * E3D needs faces to import an obj and then the scale.
+ * Its pretty wired.
+ * Form does also not get the AE world right back in.
+ * No offense I love E3D and Form but
+ * Plexus eats these OBJ files out of the box.
+ *
+ * But hey. Still have fun with that script.
+ */
 
 // ------------------------
         run_script(this);
@@ -34,7 +48,7 @@ function run_script(thisObj){
     };
 
 
-    var errorStrings;
+    var errorStrings = new Object();
     var uiStrings = new Object();
     // uiStrings.markerType = ["none","Null Object","Light Layer","Text Layer","Solid"];
 
