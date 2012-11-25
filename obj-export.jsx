@@ -1,5 +1,9 @@
 {
-
+// Write WAVEFRONT OBJ files to disk
+// - single frame or sequence
+// - vertex only!
+// 
+// 
 // Copyright (c)  2012 
 // Fabian "fabiantheblind" Morón Zirfas  
 // Permission is hereby granted, free of charge, to any 
@@ -23,13 +27,14 @@
 // see also http://www.opensource.org/licenses/mit-license.php
 
 /**
+ * 
  * First of all.
  * Satya G Meka aka Rowbyte is the only one out of
  * Element 3D, Form and Plexus
  * who seems to get the obj import right
  * I didn't try the atomkraft plugins.
  * Element 3D and Form fail with the OBJ files created
- * E3D needs faces to import an obj and then the scale.
+ * E3D needs faces to import an obj and then the scale is strange.
  * Its pretty wired.
  * Form does also not get the AE world right back in.
  * No offense I love E3D and Form but
@@ -82,6 +87,12 @@ function run_script(thisObj){
        */
       writefaces : false 
     };
+
+    /**
+     * This object holds all help info
+     * will be joined for display
+     * @type {Array of String}
+     */
     objex.helpString = [];
     objex.helpString.push("obj-export.jsx");
    objex.helpString.push("is a simple oneshot script that takes the positions of all selected layers and writes obj verticies from it. It works out of the box with Plexus by Rowbyte.");
@@ -128,24 +139,45 @@ objex.helpString.push("/**\
 objex.helpString.push("Btw: Blender does not like these files either. ;(");
 
 
+/**
+ * This will hold all error Messages
+ * @type {Object}
+ */
+var errorStrings = new Object();
+  errorStrings.noComp = "Please select a compsition";
+  errorStrings.noLayer = "Please select at least one laxer.";
 
-    var errorStrings = new Object();
-    var uiStrings = new Object();
-    // uiStrings.markerType = ["none","Null Object","Light Layer","Text Layer","Solid"];
+var uiStrings = new Object();
+  uiStrings.selFolder = "Select a output folder...";
+  /**
+   * Message for the end of the script
+   * wrote file to location
+   * 
+   * @param  {String} fn the file name
+   * @param  {String}   tf The target folder
+   */
+  uiStrings.wroteMsg = function (fn, tf){
+    alert("wrote: " + fn + ".obj\nto folder: " + tf);
+  };
 
-
-
-    ///   THIS WILL CHECK IF PANEL IS DOCKABLE OR FLAOTING WINDOW  
-    var win   = buildUI(thisObj , objex ,errorStrings, uiStrings);
-    if ((win != null) && (win instanceof Window)) {
-        win.center();
-        win.show();
-    }; // end if win  null and not a instance of window 
+///   THIS WILL CHECK IF PANEL IS DOCKABLE OR FLAOTING WINDOW  
+var win   = buildUI(thisObj , objex ,errorStrings, uiStrings);
+if ((win != null) && (win instanceof Window)) {
+    win.center();
+    win.show();
+}; // end if win  null and not a instance of window 
 
 
 };// close run_script
 
-
+/**
+ * This builds the UI
+ * @param  {The script engine?} thisObj      the Engine
+ * @param  {Object} objex        Holds al info and settings
+ * @param  {Object} errorStrings Holds all error strings
+ * @param  {Object} uiStrings    Holds all UI strings
+ * @return {Panel or Window}     The UI we created
+ */
 function buildUI (thisObj , objex ,errorStrings, uiStrings) {
     var win = (thisObj instanceof Panel) ? thisObj :  new Window('palette', 'obj-export',[0,0,150,260],{resizeable: true}); 
 
@@ -158,15 +190,19 @@ function buildUI (thisObj , objex ,errorStrings, uiStrings) {
         var y = G;
         var yuioff = G;
 
-        win.sequence_check = win.add('checkbox',[x,y,x+W1*2,y + H],'seq')
+        win.sequence_check = win.add('checkbox',[x,y,x+W1*2,y + H],'seq');
+        win.sequence_check.value = objex.settings.sequence;
         win.export_button = win.add('button', [x + W1*2 -G*2,y,x+W1*5,y + H], 'export');
         win.help_button = win.add('button', [x + W1*5+ G,y,x + W1*6,y + H], '?'); 
 
+        win.sequence_check.onClick = function (){
+          objex.settings.sequence = this.value;
+        };
         win.help_button.onClick = function () {
           alert(objex.helpString.join("\n"));
         }
         win.export_button.onClick = function(){
-          export_obj(objex);
+          export_obj(objex, uiStrings, errorStrings);
         };
 
 
@@ -189,24 +225,31 @@ function buildUI (thisObj , objex ,errorStrings, uiStrings) {
 // ------------------------------------------------------------
 
 
-// main();
-function export_obj(objex){
+/**
+ * This is the main function
+ * That does all the stuff
+ * @param  {Object} objex        Holds al info and settings
+ * @param  {Object} errorStrings Holds all error strings
+ * @param  {Object} uiStrings    Holds all UI strings
+ */
+function export_obj(objex,uiStrings,errorStrings){
 
   app.beginUndoGroup("export obj");
 
 
 var curComp = app.project.activeItem;
    if (!curComp || !(curComp instanceof CompItem)){
-        alert("noComp");
+        alert(errorStrings.noComp);
         return;
     };
 
 if ((curComp.selectedLayers.length < 1)){
-        alert("Please select only one center layer");
+        alert(errorStrings.noLayer);
         return;
     }
 
-
+    var newLocation = Folder.selectDialog(uiStrings.selFolder);
+    if(newLocation == null) return;
 // var name = prompt("Enter a name.\nLeave empty for marker coords","");
 var cw = curComp.width;
 var ch = curComp.height;
@@ -216,55 +259,127 @@ var coords = new Array();
 var selection = curComp.selectedLayers;
 
 if(objex.settings.sequence == false){
-
+/**
+ * This is single frame
+ * He takes the valueAtTime so where ever the CTI
+ * is he will make an WAVEFRONT OBJ file 
+ * 
+ * 
+ */
 
 
 for(var j in selection){
 
 var sel = selection[j];
 
-coords.push(get_position(sel));
+coords.push(get_position_at_time(sel,curComp.time));
 
   }
 
-var newLocation = Folder.selectDialog("Select a output folder...");
-    var timestamp = Number(new Date());
+// var newLocation = Folder.selectDialog("Select a output folder...");
+// if(newLocation == null) return;
 
-  var fn =  curComp.name +" "+ timestamp;// prompt("Enter target file name","myObjFile");
+  var timestamp = String(Number(new Date()));
+
+  var fn =  curComp.name +" "+ timestamp.substr(timestamp.length - 6,timestamp.length -1);// prompt("Enter target file name","myObjFile");
   var tf = newLocation.fsName;
   var txtFile =  new File( tf+"/" + fn + ".obj" ); 
 
 
-writeArray(txtFile, coords, curComp.name + "" );
+writeArray(txtFile, coords, curComp.name + "" ,"",false);
 
-alert("wrote: " + fn + ".obj\nto folder: " + tf);
+uiStrings.wroteMsg(fn,tf);
+
 }else{
 
-  alert("This should write a sequence");
+  var frDur = curComp.frameDuration;
+  var waDur = curComp.workAreaDuration;
+  var waStart = curComp.workAreaStart;
+  var frRate = curComp.frameRate;
+  var waLen =   waDur * frRate;
+  // the time loop
+  // 
+  for(var t = 0; t < waLen;t++){
+
+      var curFr = waStart + (t*frDur);
+
+      var coordsAtTime = new Array();
+
+      for(var l in selection ){
+        var lyr = selection[l];
+        // var timeInSec = curFr / frRate;
+        coordsAtTime.push(get_position_at_time(lyr,curFr));
+      };
+
+     // var timestamp = Number(new Date());
+     var timestamp = pad(t,6);
+  var fn =  curComp.name +"_"+ timestamp;// prompt("Enter target file name","myObjFile");
+  var tf = newLocation.fsName;
+  var txtFile =  new File( tf+"/" + fn + ".obj" ); 
+
+
+writeArray(txtFile,
+           coordsAtTime,
+           curComp.name + "" ,
+           String("# frame "+timestamp + " of "+waLen+" at fps" + frRate),
+           false);
+
+
+
+  };
+
+
+uiStrings.wroteMsg(fn,tf);
+// alert("wrote: " + fn + ".obj\nto folder: " + tf);
+
+  // alert("This should write a sequence");
 
 }
 app.endUndoGroup();
 }
 
 
-function get_position(layer){
+// function get_position(layer){
+// // var str = "";
+// var x = 0.0;
+// var y = 0.0;
+// var z = 0.0;
+
+//   x = layer.transform.position.value[0].toFixed(3) - (layer.containingComp.width/2);
+//   y = layer.transform.position.value[1].toFixed(3) - (layer.containingComp.height/2);
+//   if(layer.threeDLayer) {
+//     z = layer.transform.position.value[2].toFixed(3);
+//   }else{
+//     z = 0.0;
+//   };
+
+// return "" + x +" " + y + " "+ z;
+// };
+
+/**
+ * Gets the position value at a specific time
+ * It gets shortend to 3 digits float
+ * @param  {Layer Object} layer the current layer the get the value from
+ * @param  {Number Float} time The curent time
+ * @return {String}       builds a string that looks like this: "" + x +" " + y + " "+ z
+ */
+function get_position_at_time(layer,time){
 // var str = "";
 var x = 0.0;
 var y = 0.0;
 var z = 0.0;
 
-  x = layer.transform.position.value[0].toFixed(3) - (layer.containingComp.width/2);
-  y = layer.transform.position.value[1].toFixed(3) - (layer.containingComp.height/2);
+  x = layer.transform.position.valueAtTime(time,false)[0].toFixed(3) - (layer.containingComp.width/2);
+  y = layer.transform.position.valueAtTime(time,false)[1].toFixed(3) - (layer.containingComp.height/2);
   if(layer.threeDLayer) {
-    z = layer.transform.position.value[2].toFixed(3);
+    z = layer.transform.position.valueAtTime(time,false)[2].toFixed(3);
   }else{
     z = 0.0;
   };
 
 return "" + x +" " + y + " "+ z;
 };
-
-    function writeArray (txtFile , arr ,grName)  
+    function writeArray (txtFile , arr ,grName, comment,addFaces)  
 {  
   var out;
    if( txtFile!='' )  
@@ -287,9 +402,12 @@ return "" + x +" " + y + " "+ z;
 
 
       var openString = "# WaveFront *.obj file generated by Adobe After Effects\n"+
-                          "# with obj-export.jsx\n\n";
+                          "# with obj-export.jsx\n";
     // var groupName = "g " + grName;
-    // txtFile.writeln(openString );
+    txtFile.writeln(openString );
+    if(comment.length > 0){
+      txtFile.writeln(comment);
+    };
 
     arr.sort(sortfunc); //must sort vertices to get rid of errant vertex at the end
    }  
@@ -302,7 +420,7 @@ return "" + x +" " + y + " "+ z;
 
      // this is not reachable by UI
      // 
-    if(objex.settings.writefaces == true){
+    if(addFaces == true){
      // not fit for E3D
      var e3dface_str = "f ";
       for(var j =0; j < arr.length;j++){
@@ -318,7 +436,12 @@ return "" + x +" " + y + " "+ z;
 
 // found here 
 // http://stackoverflow.com/questions/9223701/math-round-adding-leading-zeros
-
+/**
+ * adds digits to the frame number to kep it in order
+ * @param  {Number Integer} number the number to pad
+ * @param  {Number Integer} length the number of digits to add
+ * @return {String}        this is part of the filename like *.00001.obj
+ */
 function pad(number, length) {
     var str = '' + number;
     while (str.length < length) {
@@ -329,19 +452,24 @@ function pad(number, length) {
 }
 
 
-function checkOS(){
-  var os_string = $.os;
-  var os_char = os_string.charAt(0);
-  var bool = null;
-  if (os_char == "w" || os_char == "W") {
-    bool = true;
-  }
-  else {
-    bool = false;
-  }
-return bool;
-}
+// function checkOS(){
+//   var os_string = $.os;
+//   var os_char = os_string.charAt(0);
+//   var bool = null;
+//   if (os_char == "w" || os_char == "W") {
+//     bool = true;
+//   }
+//   else {
+//     bool = false;
+//   }
+// return bool;
+// }
 
+/**
+ * Checks what type of operating system
+ * I think we need to write windows Linefeeds and unix linefeeds
+ * @return {Array of Bool} To be really shure we check for both
+ */
 function checkOSSave(){ 
     var os_w = null;
     var os_m = null;
@@ -350,23 +478,30 @@ function checkOSSave(){
     return [os_w,os_m];
 } 
 
+/**
+ * sort the vericies 
+ * I never really understood these
+ * @param  {[type]} a [description]
+ * @param  {[type]} b [description]
+ * @return {[type]}   [description]
+ */
 function sortfunc(a,b){
 return a - b;
 };
 
-function writeData (txtFile , aData ){  
-  var out;
-   if( txtFile!='' )  
-   {   
-      //Open the file for writing.   
-      out = txtFile.open( 'e', undefined, undefined );   
-   }  
-   if( out != false )  
-   {     
-     txtFile.seek(0);
-      txtFile.writeln( aData );         
-      txtFile.close();   
-     // txtFile.execute();  
-   }
-}
+// function writeData (txtFile , aData ){  
+//   var out;
+//    if( txtFile!='' )  
+//    {   
+//       //Open the file for writing.   
+//       out = txtFile.open( 'e', undefined, undefined );   
+//    }  
+//    if( out != false )  
+//    {     
+//      txtFile.seek(0);
+//       txtFile.writeln( aData );         
+//       txtFile.close();   
+//      // txtFile.execute();  
+//    }
+// }
 };
