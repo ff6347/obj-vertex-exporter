@@ -405,7 +405,7 @@ return "" + x +" " + y + " "+ z;
 // found here 
 // http://stackoverflow.com/questions/9223701/math-round-adding-leading-zeros
 /**
- * adds digits to the frame number to kep it in order
+ * adds digits to the frame number to keep it in order
  * @param  {Number Integer} number the number to pad
  * @param  {Number Integer} length the number of digits to add
  * @return {String}        this is part of the filename like *.00001.obj
