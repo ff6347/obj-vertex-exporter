@@ -9,7 +9,7 @@ You can run this script as dockable or floating panel. Read this part of the [AE
 Select at least one layer. If the "seq" checkbox is deselected the script will export the current position(s) of the selected layer(s) at the current time.  
 If you check the "seq" checkbox the script will export the position(s) of the selected layer(s) for the whole workarea. Expressions will be calculated and parented layers also work right.  
 
-##Compatibility of the .obj files
+##Compatibility of the .obj files  
 The .obj files work out of the box with Plexus. Trapcode From can read these files but the 3D space does not match with the AE 3D space. VC Element 3D can't read these files. Element needs faces to read .obj files.  
 
 ####Trapcode Form Quirks:  
