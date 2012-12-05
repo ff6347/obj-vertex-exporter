@@ -42,10 +42,9 @@
  * Plexus eats these OBJ files out of the box.
  *
  * But hey. Still have fun with that script.
- */
-
-
-/**
+ *
+ *
+ * 
  * Videocopilot Element 3D Quirks:  
  * - E3D needs faces in the obj. If there are only verticies he does not find anything at all
  * - E3D seems to read only positive values
@@ -53,10 +52,6 @@
  * - E3D position is offseted
  * - E3D writing all v's to faces does not solve the problem so it is deactivated
  * 
- */
-
-
-/**
  * Trapcode Form Quirks:  
  * - Form needs no faces. He finds the verticies
  * - better shut of normalize
@@ -68,15 +63,20 @@
  *   Fiddle with the z offset
  *   you need to offset the center z of the Base Form
  * 
+ * @todo calculate also rotation values und scales using a buffer layer with this expression
+ * // apply to position of buffer layer
+ * // works 2D and 3D
+ * a = thisComp.layer("parented layer");
+ * a.toWorld(a.anchorPoint);
+ * 
  */
 
 
-/**
- * This is a global variable for recursive layer parenting handling
- * This will be overwritten and set to [0,0,0] at the end of every layer analysis
- * used in function recurs_position
- * @type {Array with 3 Numbers x ,y ,z}
- */
+// This is a global variable for recursive layer parenting handling
+// This will be overwritten and set to [0,0,0] at the end of every layer analysis
+// used in function recurs_position
+// type {Array with 3 Numbers x ,y ,z}
+// 
 var global_curr_pos = [0,0,0];
 // ------------------------
         run_script(this);
@@ -87,6 +87,32 @@ var global_curr_pos = [0,0,0];
  * this runs the whole script
  */
 function run_script(thisObj){
+
+  /**
+ * Check if license already was accepted
+ * and save it
+ */
+var res = null;
+var website = "http://fabiantheblind.github.com/obj-vertex-exporter/";
+var settingsSectionName = "obj-vertex-exporter";
+if((app.settings.haveSetting(settingsSectionName,"licaccept") == true)){
+var licres = parseInt(app.settings.getSetting(settingsSectionName,"licaccept"));
+if (licres==1){
+    res = [true,true];
+} else {
+    res = licenseDiag("obj-vertex-exporter",website);
+    };
+}else{
+  res = licenseDiag("obj-vertex-exporter",website);
+};
+if (!res[1]){
+    return;
+}if(res[0]){
+    app.settings.saveSetting(settingsSectionName,"licaccept",1);
+};
+
+
+
     var objex = new Object();
     objex.settings = {
       sequence : false,
@@ -107,6 +133,7 @@ function run_script(thisObj){
     objex.helpString.push("obj-vertex-export.jsx");
 
    objex.helpString.push("is a simple oneshot script that takes the positions of all selected layers and writes obj verticies from it. It works out of the box with Plexus by Rowbyte.");
+objex.helpString.push("\nParenting:\nThis script can export parented layers but only position values. If you have more complex animations using scale or rotation you should bake the values using:\n'Blurrypixel' http://aescripts.com/bake-parented-transform/\n");
 objex.helpString.push("Plexus is the only one out of\
 Element 3D, Form and Plexus\
 who seems to get the obj import right.\
@@ -208,8 +235,59 @@ function buildUI (thisObj , objex ,errorStrings, uiStrings) {
     return win
 };// end buildUI
 
+/*
 
+This is the license dialoge that shows up 
+on startup. If you dont tell him to go away
 
+*/
+/**
+ * [licenseDiag description]
+ * @param  {[type]} n       [description]
+ * @param  {[type]} website [description]
+ * @return {[type]}
+ */
+function licenseDiag (n, website) {
+    var lic= "DONT USE SCRIPTS FROM UNTRUSETED SOURCES! ALWAYS DOWNLOAD THIS SCRIPT @ "+ website +"/\n\n"+
+    "You have to allow the script to read and write to disk.\nso if you obtained this script from any other source then the above mentioned"+
+"\nIT COULD INCLUDE MALICIOUS CODE!\nBy confirming this dialog you also accept the license agreement below\n"+    
+"\nLICENSES\n"+"Copyright (c)  2012 Fabian \"fabiantheblind\" Morón Zirfas\n"+
+"Permission is hereby granted, free of charge*, to any person obtaining a copy of this "+
+"software and associated documentation files (the \"Software\"), to deal in the Software "+ 
+"without restriction, including without limitation the rights to use, copy, modify "+ 
+"the Software, and to permit persons to whom the Software is furnished to do so, subject to the following "+
+"conditions:\n"+
+"The above copyright notice and this permission notice shall be included in all copies "+ 
+"or substantial portions of the Software.\n"+
+"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, "+ 
+"INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A "+ 
+"PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT "+ 
+"HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF "+ 
+"CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE "+
+"OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n"+
+"see also http://www.opensource.org/licenses/mit-license.php\n\n"+
+"*if you want to donate something so I can buy cookies and beer\ndo it via aescripts.com\n";
+
+var diag                = new Window ("dialog",n + " || readme and license agreement");
+    diag.preferredSize  =    {"width":450,"height":450};
+var pan                 = diag.add('group',undefined,'');
+    pan.orientation     ='column';
+var txt                 = pan.add('edittext',undefined,lic,{multiline:true,scrolling: false});
+    txt.preferredSize   =    {"width":440,"height":430};
+var btg                 =  pan.add ("group");
+var cbg                 = btg.add ("group");
+    cbg.alignment       = "left";
+var cb                  = cbg.add ("checkbox", undefined, "dont warn me again");
+    btg.orientation     = 'row';
+    btg.alignment       = "right";
+    btg.add ("button", undefined, "OK");
+    btg.add ("button", undefined, "cancel");
+if (diag.show () == 1){
+    return [cb.value,true];
+  }else{  
+    return [false, false];
+  };
+};
 // ------------------------------------------------------------
 
     //  ______ _   _ _____   ____  ______ _    _ _____ 
@@ -249,13 +327,69 @@ if ((curComp.selectedLayers.length < 1)){
 
 var selection = curComp.selectedLayers;
 
-var newLocation = Folder.selectDialog(uiStrings.selFolder); // select the folder
-if(newLocation == null) return; // if there was an error or the user hits escape
 
 // ------------ So lets write some OBJ ------------
-// var cw = curComp.width;
-// var ch = curComp.height;
+var somethingvariying = false;
+var propsstr = new Array();
+for(var v = 0; v < selection.length;v++){
 
+if(selection[v].parent != null){
+
+if((selection[v].parent.transform.scale.isTimeVarying == true)){
+  propsstr.push("scale on layer: " + selection[v].parent.name);
+  somethingvariying = true;
+  };
+
+if((selection[v].parent.transform.anchorPoint.isTimeVarying == true)){
+    propsstr.push("anchor point on layer: " + selection[v].parent.name);
+
+  somethingvariying = true;
+  };
+
+
+if(selection[v].parent.threeDLayer == false){
+
+if((selection[v].parent.transform.rotation.isTimeVarying == true)){
+    propsstr.push("rotation on layer: " + selection[v].parent.name);
+
+  somethingvariying = true;
+  };
+
+}else{
+
+if((selection[v].parent.transform.zRotation.isTimeVarying == true)){
+  somethingvariying = true;
+    propsstr.push("z rotation on layer: " + selection[v].parent.name);
+
+  };
+if((selection[v].parent.transform.yRotation.isTimeVarying == true)){
+  somethingvariying = true;
+      propsstr.push("y rotation on layer: " + selection[v].parent.name);
+
+  };
+
+  if((selection[v].parent.transform.xRotation.isTimeVarying == true)){
+  somethingvariying = true;
+        propsstr.push("x rotation on layer: " + selection[v].parent.name);
+
+  };
+};
+
+// if(somethingvariying == true){
+//     break;
+//   };
+};
+}
+
+if(somethingvariying == true){
+  var confirmresult = confirm("You have some parented animation that cant be calculated. Should I stop exporting?\nLayers with parented and time variying animations:\n\n"+ propsstr.join("\n")+"\n\nThe result of the export might not be the same as your animation.\n Use \"Bake Parented Transform\"\nby Blurrypixel Software\nhttp://aescripts.com/bake-parented-transform/\nto bake your values.");
+if(confirmresult == true){
+  return;
+}
+}
+
+var newLocation = Folder.selectDialog(uiStrings.selFolder); // select the folder
+if(newLocation == null) return; // if there was an error or the user hits escape
 
 
 if(objex.settings.sequence == false){
@@ -394,9 +528,9 @@ return [x,y,z];
 
 /**
  * This is the masterpiece of code for this script
- * this function cals irself recursive. 
+ * this function cals itself recursive. 
  * So if you have severeal parented layers it will calc
- * all the positions right. ;)
+ * all the positions right. ;) But only positions ;(
  *
  * 
  * @param  {Layer Object} layer the current layer
