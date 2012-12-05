@@ -16,24 +16,24 @@
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
-          <a id="forkme_banner" href="https://github.com/fabiantheblind/obj-vertex-exporter">View on GitHub</a>
+          <!-- <a id="forkme_banner" href="https://github.com/fabiantheblind/obj-vertex-exporter">View on GitHub</a> -->
 
-          <h1 id="project_title">Obj-vertex-exporter</h1>
+          <h1 id="project_title">Obj-vertex-export.jsx</h1>
           <h2 id="project_tagline">This script exports obj vertex data from AE layer positions.</h2>
 
-            <section id="downloads">
+<!--             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/fabiantheblind/obj-vertex-exporter/zipball/master">Download this project as a .zip file</a>
               <a class="tar_download_link" href="https://github.com/fabiantheblind/obj-vertex-exporter/tarball/master">Download this project as a tar.gz file</a>
-            </section>
+            </section> -->
         </header>
     </div>
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>obj-vertex-export.jsx</h1>
+<!--         <h1>obj-vertex-export.jsx</h1>
 
-<p>This script exports obj files from AE 3D layer positions. It only exports vertex points. No faces or other features of .obj.  </p>
+<p>This script exports obj files from AE 3D layer positions. It only exports vertex points. No faces or other features of .obj.  </p> -->
 
 <h2>Download</h2>
 
@@ -46,7 +46,8 @@
 <h2>Usage</h2>
 
 <p>Select at least one layer. If the "seq" checkbox is deselected the script will export the current position(s) of the selected layer(s) at the current time.<br>
-If you check the "seq" checkbox the script will export the position(s) of the selected layer(s) for the whole workarea. Expressions will be calculated and parented layers also work right.  </p>
+If you check the "seq" checkbox the script will export the position(s) of the selected layer(s) for the whole workarea. Expressions will be calculated. <br>
+Parented layer positions will be calculated. If you have more complex animations that use parented scale, anchor point or rotation animations you should use <a href="http://aescripts.com/bake-parented-transform/">Bake Parented Transform</a> by <a href="http://aescripts.com/authors/a-b/blurrypixel/">Blurrypixel</a> to bake your animation first.</p>
 
 <h2>Compatibility of the .obj files</h2>
 
@@ -69,8 +70,6 @@ you need to offset the center z of the Base Form<br>
 
 <ul>
 <li>E3D needs faces in the obj. If there are only verticies he does not find anything at all
-
-<ul>
 <li>E3D seems to read only positive values</li>
 <li>E3D scaleing is offseted</li>
 <li>E3D position is offseted</li>
@@ -87,7 +86,7 @@ you need to offset the center z of the Base Form<br>
 </ul><h2>License</h2>
 
 <p>Copyright (c)  2012 Fabian "fabiantheblind" Morón Zirfas<br>
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software  without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to  permit persons to whom the Software is furnished to do so, subject to the following conditions:<br>
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software  without restriction, including without limitation the rights to use, copy and modify copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:<br>
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.<br>
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  </p>
 
