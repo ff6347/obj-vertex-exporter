@@ -1,0 +1,21 @@
+#obj-vertex-export.jsx
+
+is a simple oneshot script that takes the positions of all selected layers and writes obj verticies from it. It works out of the box with Plexus by Rowbyte.  
+
+Parenting:  
+This script can export parented layers If you run int o any problems try:
+'Blurrypixel' http://aescripts.com/bake-parented-transform/  
+
+Plexus is the only one out of Element 3D, Form and Plexus who seems to get the obj import right. I didn't try the atomkraft plugins nor others. Element 3D and Form get problems with the OBJ files created E3D needs faces to import an obj and seems to have problem with negative Z values. Its pretty wired. So I disabled that for the moment. Form also does not get the world right. No offense I love E3D and Form but Plexus eats these OBJ files out of the box. But hey. You still can have fun with this script.
+
+Trapcode Form Quirks:  
+- Form needs no faces. He finds the verticies
+- better shut of normalize
+- To get something that is near to but not fully right
+ Set the Basefrom x to your obj comps x
+ Set the Basefrom y to your obj comps y
+ Set the Basefrom z to your obj comps z
+ But still. It is not fully right. Fiddle with the z offset you need to offset the center z of the Base Form.
+
+Videocopilot Element 3D Quirks:  
+E3D needs faces in the obj. If there are only verticies he does not find anything at all E3D seems to read only positive values E3D scaleing is offseted E3D position is offseted E3D writing all v's to faces does not solve the problem so it is deactivated.  
