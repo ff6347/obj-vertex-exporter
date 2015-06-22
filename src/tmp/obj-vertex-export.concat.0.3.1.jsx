@@ -1,4 +1,3 @@
-(function(thisObj) {
 
 /*! obj-vertex-export.jsx - v0.3.1 - 2015-06-22 */
   // Write WAVEFRONT OBJ files to disk
@@ -662,5 +661,3 @@ on startup. If you dont tell him to go away
 
   }; // close run_obj_vertex_export_script
 
-
-})(this);
