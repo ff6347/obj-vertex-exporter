@@ -1,7 +1,7 @@
 #obj-vertex-export.jsx  
 This script exports obj files from AE 3D layer positions. It only exports vertex points. No faces or other features of .obj.  
 ##Download  
-You can download the script @aescripts.com  
+You can download the script distribution verison [@aescripts.com](http://aescripts.com/obj-vertex-export/)  
 
 ##Installation  
 You can run this script as dockable or floating panel. Read this part of the [AEHelp](http://help.adobe.com/en_US/aftereffects/cs/using/WSD2616887-A41E-4a39-85FE-957B9D2D3843.html) or watch [this tutorial on aescripts.com](http://aescripts.com/knowledgebase/index/view/faq/how-to-install-and-run-scripts/).
@@ -35,7 +35,7 @@ you need to offset the center z of the Base Form
 - This is not tested in any other 3D application. So feel free to report what works and what not.  
 
 ##License  
-Copyright (c)  2012 - 2015 Fabian "fabiantheblind" Morón Zirfas  
+Copyright (c)  2012 - 2016 Fabian "fabiantheblind" Morón Zirfas  
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software  without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to  permit persons to whom the Software is furnished to do so, subject to the following conditions:  
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.  
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  

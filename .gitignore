@@ -5,3 +5,7 @@ build-tmp/
 node_modules/
 bower_components/
 zips/dist*
+zips/
+dist/
+old.pre.cc2015/
+src/tmp/
